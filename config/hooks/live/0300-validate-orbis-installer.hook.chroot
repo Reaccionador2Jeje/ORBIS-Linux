@@ -1,0 +1,26 @@
+#!/bin/sh
+set -eu
+
+# Fail the ISO build early if the custom installer is incomplete.
+test -x /usr/bin/calamares
+test -x /usr/bin/pkexec
+test -d /usr/lib/x86_64-linux-gnu/calamares/modules
+test -f /etc/calamares/settings.conf
+test -f /etc/calamares/modules/unpackfs.conf
+test -f /etc/calamares/modules/partition.conf
+test -f /usr/share/calamares/branding/orbis/branding.desc
+
+modules="
+welcome locale keyboard partition users summary
+mount unpackfs machineid fstab localecfg displaymanager
+networkcfg hwclock services-systemd initramfs grubcfg bootloader finished
+"
+for module in $modules; do
+    test -f "/usr/lib/x86_64-linux-gnu/calamares/modules/$module/module.desc" || {
+        echo "Missing Calamares module: $module" >&2
+        exit 1
+    }
+done
+
+test -x /usr/local/bin/orbis-installer
+test -f /usr/share/applications/orbis-installer.desktop
