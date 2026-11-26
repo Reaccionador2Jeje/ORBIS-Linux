@@ -1,4 +1,6 @@
 # ORBIS Linux graphical live system (Debian 13 Trixie + XFCE)
+# Install the kernel explicitly; Ubuntu live-build 3.0~a57 has a stale Contents index lookup.
+linux-image-amd64
 live-boot
 live-config
 live-config-systemd
