@@ -27,3 +27,4 @@ jobs:
         run: |
           orbis --version
           orbis info
+          orbis geojson examples/point-demo.geojson --pretty
