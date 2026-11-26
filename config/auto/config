@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+lb config noauto \
+  --mode debian \
+  --system live \
+  --distribution trixie \
+  --architectures amd64 \
+  --binary-images iso-hybrid \
+  --archive-areas "main contrib non-free-firmware" \
+  --debian-installer live \
+  --debian-installer-gui true \
+  --bootappend-live "boot=live components username=orbis hostname=orbis locales=en_US.UTF-8 keyboard-layouts=us" \
+  --iso-application "ORBIS Linux" \
+  --iso-publisher "AtDev" \
+  --iso-volume "ORBIS_LINUX" \
+  --debian-installer-distribution trixie \
+  --apt-recommends false \
+  --firmware-chroot true \
+  --firmware-binary true \
+  "${@}"
