@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install ORBIS Linux
+Name[es]=Instalar ORBIS Linux
+Comment=Install ORBIS Linux on this computer
+Comment[es]=Instala ORBIS Linux en este equipo
+Exec=orbis-installer
+Icon=system-software-install
+Terminal=false
+Categories=System;
+StartupNotify=true
