@@ -20,17 +20,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    container:
-      image: debian:trixie
-      options: --user root
     timeout-minutes: 90
     steps:
-      - name: Install Debian live-build toolchain
+      - name: Install Debian Trixie live-build on the privileged runner
         run: |
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            git live-build debootstrap xorriso squashfs-tools python3 python3-venv \
-            python3-setuptools ruby ca-certificates curl wget file
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cpio debootstrap xorriso squashfs-tools python3 python3-venv \
+            python3-setuptools ruby ca-certificates curl wget file git debian-archive-keyring
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main" | \
+            sudo tee /etc/apt/sources.list.d/orbis-live-build.list
+          sudo apt-get update
+          apt-get download live-build=1:20250505+deb13u1
+          sudo dpkg -i ./live-build_20250505+deb13u1_all.deb
+          sudo apt-get check
+          lb --version
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,9 +56,9 @@ jobs:
 
       - name: Stage ORBIS Core and installer launchers
         run: |
-          mkdir -p config/includes.chroot/usr/share/orbis/source
-          cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
-          chmod +x auto/config \
+          sudo mkdir -p config/includes.chroot/usr/share/orbis/source
+          sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
+          sudo chmod +x auto/config \
             config/hooks/live/*.hook.chroot \
             config/includes.chroot/usr/local/bin/orbis-earth \
             config/includes.chroot/usr/local/bin/orbis-installer \
@@ -62,36 +66,36 @@ jobs:
 
       - name: Configure Debian Trixie live system
         run: |
-          rm -f config/binary config/bootstrap config/chroot config/common config/source
-          lb --version
-          lb config
+          sudo rm -f config/binary config/bootstrap config/chroot config/common config/source
+          sudo lb --version
+          sudo lb config
           echo "=== generated live-build configuration ==="
           for file in config/bootstrap config/chroot config/binary config/common; do
             if [ -f "$file" ]; then
               echo "--- $file ---"
-              grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_DEBIAN_INSTALLER|LB_SECURITY|LB_LINUX_PACKAGES|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
+              sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_DEBIAN_INSTALLER|LB_SECURITY|LB_LINUX_PACKAGES|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
             fi
           done
           echo "=== legacy Ubuntu entries (diagnostic only) ==="
           for file in config/bootstrap config/chroot config/binary config/common; do
             if [ -f "$file" ]; then
-              grep -Ein 'precise|archive[.]ubuntu[.]com' "$file" || true
+              sudo grep -Ein 'precise|archive[.]ubuntu[.]com' "$file" || true
             fi
           done
-          grep -Fqx 'LB_DISTRIBUTION="trixie"' config/bootstrap
-          grep -Fqx 'LB_MODE="debian"' config/common
-          grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
-          grep -Fqx 'LB_SECURITY="false"' config/chroot
-          grep -Fqx 'LB_LINUX_PACKAGES="none"' config/chroot
-          grep -Fqx 'linux-image-amd64' config/package-lists/orbis-desktop.list.chroot
+          sudo grep -Fqx 'LB_DISTRIBUTION="trixie"' config/bootstrap
+          sudo grep -Fqx 'LB_MODE="debian"' config/common
+          sudo grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
+          sudo grep -Fqx 'LB_SECURITY="false"' config/chroot
+          sudo grep -Fqx 'LB_LINUX_PACKAGES="none"' config/chroot
+          sudo grep -Fqx 'linux-image-amd64' config/package-lists/orbis-desktop.list.chroot
           for package in xserver-xorg xserver-xorg-video-all xserver-xorg-input-all dbus-x11 mate-polkit; do
-            grep -Fqx "$package" config/package-lists/orbis-desktop.list.chroot
+            sudo grep -Fqx "$package" config/package-lists/orbis-desktop.list.chroot
           done
-          grep -Fqx 'deb https://security.debian.org/debian-security @DISTRIBUTION@-security @ARCHIVE_AREAS@' config/archives/debian-security.list.chroot
+          sudo grep -Fqx 'deb https://security.debian.org/debian-security @DISTRIBUTION@-security @ARCHIVE_AREAS@' config/archives/debian-security.list.chroot
           for setting in LB_MIRROR_BOOTSTRAP LB_MIRROR_CHROOT LB_MIRROR_BINARY; do
-            grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
+            sudo grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
           done
-          if grep -RIEq '^[[:space:]]*LB_(DISTRIBUTION|MODE|MIRROR_[A-Z_]+)=.*(precise|ubuntu)' config; then
+          if sudo grep -RIEq '^[[:space:]]*LB_(DISTRIBUTION|MODE|MIRROR_[A-Z_]+)=.*(precise|ubuntu)' config; then
             echo "Unexpected active Ubuntu live-build setting found" >&2
             exit 1
           fi
@@ -101,9 +105,9 @@ jobs:
 
       - name: Verify image
         run: |
-          test -s live-image-amd64.hybrid.iso
-          file live-image-amd64.hybrid.iso
-          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
+          sudo test -s live-image-amd64.hybrid.iso
+          sudo file live-image-amd64.hybrid.iso
+          sudo sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
 
       - name: Publish ISO release
         if: success()
