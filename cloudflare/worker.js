@@ -85,6 +85,21 @@ export default {
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD" } });
     }
+    if (url.pathname === "/api/releases") {
+      const response = await fetch("https://api.github.com/repos/Reaccionador2Jeje/ORBIS-Linux/releases/latest", {
+        headers: { "accept": "application/vnd.github+json", "user-agent": "ORBIS-Linux-Website" },
+        cf: { cacheTtl: 300, cacheEverything: true }
+      });
+      if (response.status === 404) return json({ available: false, message: "No ISO release has been published yet." });
+      if (!response.ok) return json({ available: false, message: "Release information is temporarily unavailable." }, 502);
+      const release = await response.json();
+      const assets = (release.assets || []).map(asset => ({
+        name: asset.name, size: asset.size, download_url: asset.browser_download_url,
+        content_type: asset.content_type, downloads: asset.download_count
+      }));
+      return json({ available: assets.some(a => a.name.endsWith(".iso")), tag: release.tag_name,
+        name: release.name, published_at: release.published_at, html_url: release.html_url, assets });
+    }
     if (url.pathname === "/api/status" || url.pathname === "/healthz") {
       return json({ name: "ORBIS Linux", status: "ok", service: "orbis-linux", version: "0.1.0", platform: "Cloudflare Workers", project: "https://github.com/Reaccionador2Jeje/ORBIS-Linux", timestamp: new Date().toISOString() });
     }
