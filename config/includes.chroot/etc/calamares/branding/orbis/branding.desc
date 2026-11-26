@@ -1,5 +1,8 @@
-# ORBIS Calamares branding
+# ORBIS Linux Calamares branding
 componentName: orbis
+welcomeStyle: sidebar
+windowExpanding: true
+windowSize: 960px,600px
 strings:
   productName: ORBIS Linux
   shortProductName: ORBIS
@@ -9,9 +12,3 @@ strings:
   productUrl: https://orbis-linux.cristopheriguaran-7.workers.dev
   supportUrl: https://github.com/Reaccionador2Jeje/ORBIS-Linux/issues
   knownIssuesUrl: https://github.com/Reaccionador2Jeje/ORBIS-Linux/issues
-images:
-  productLogo: ""
-  productIcon: ""
-style:
-  sidebar:
-    image: ""
