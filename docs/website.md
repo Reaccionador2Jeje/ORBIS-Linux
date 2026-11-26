@@ -12,6 +12,7 @@ The official ORBIS website is served by the Cloudflare Worker `orbis-linux`.
 | --- | --- |
 | `/` | Responsive ORBIS product and project website |
 | `/api/status` | JSON service health and project metadata |
+| `/api/releases` | Latest official GitHub release, ISO asset links and checksums |
 | `/healthz` | Health-check JSON |
 | `/robots.txt` | Search crawler policy and sitemap location |
 | `/sitemap.xml` | Minimal sitemap |
@@ -22,6 +23,7 @@ The official ORBIS website is served by the Cloudflare Worker `orbis-linux`.
 - ORBIS overview and product positioning.
 - ORBIS Earth, Maps, Data, Weather, Sim and Core.
 - Desktop edition details and build-artifact disclaimer.
+- Live ISO download panel backed by the latest public GitHub Release; it stays in a “not published yet” state until a successful ISO build creates a release.
 - Platform facts, development roadmap and community links.
 - Responsive mobile navigation, reduced-motion support, metadata and security headers.
 
@@ -46,4 +48,4 @@ curl -I https://orbis-linux.cristopheriguaran-7.workers.dev/
 curl -fsS https://orbis-linux.cristopheriguaran-7.workers.dev/robots.txt
 ```
 
-The health endpoint reports Worker availability, not the build status of the Linux ISO.
+The health endpoint reports Worker availability, not the build status of the Linux ISO. `/api/releases` reads the latest public GitHub Release and never invents a download URL. The website refreshes this endpoint to populate the official download panel.
