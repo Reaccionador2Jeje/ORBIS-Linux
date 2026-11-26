@@ -56,7 +56,7 @@ def _geometry(obj: Any, path: str = "geometry") -> tuple[str, list[tuple[float, 
     if not isinstance(obj, dict):
         raise GeoJSONError(f"{path}: geometry must be an object or null")
     kind = obj.get("type")
-    if kind not in _GEOMETRY_TYPES:
+    if not isinstance(kind, str) or kind not in _GEOMETRY_TYPES:
         raise GeoJSONError(f"{path}: unsupported geometry type {kind!r}")
     if kind == "GeometryCollection":
         geometries = obj.get("geometries")
@@ -73,8 +73,10 @@ def _geometry(obj: Any, path: str = "geometry") -> tuple[str, list[tuple[float, 
         "MultiLineString": 2, "Polygon": 2, "MultiPolygon": 3,
     }
     points = _positions(obj.get("coordinates"), f"{path}.coordinates", depths[kind])
-    if kind == "LineString" and len(points) < 2:
+    if kind == "LineString" and len(obj["coordinates"]) < 2:
         raise GeoJSONError(f"{path}: LineString requires at least 2 positions")
+    if kind == "MultiLineString" and any(len(line) < 2 for line in obj["coordinates"]):
+        raise GeoJSONError(f"{path}: each MultiLineString member requires at least 2 positions")
     if kind == "Polygon":
         _validate_rings(obj["coordinates"], path)
     if kind == "MultiPolygon":
