@@ -25,15 +25,15 @@ jobs:
       options: --user root
     timeout-minutes: 90
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Install Debian live-build toolchain
         run: |
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            live-build debootstrap xorriso squashfs-tools python3 python3-venv \
-            python3-setuptools ruby ca-certificates curl wget file git
+            git live-build debootstrap xorriso squashfs-tools python3 python3-venv \
+            python3-setuptools ruby ca-certificates curl wget file
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Validate ORBIS desktop, installer and build scripts
         run: |
