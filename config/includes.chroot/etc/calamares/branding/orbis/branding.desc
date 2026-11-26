@@ -1,0 +1,17 @@
+# ORBIS Calamares branding
+componentName: orbis
+strings:
+  productName: ORBIS Linux
+  shortProductName: ORBIS
+  version: "0.1"
+  shortVersion: "0.1"
+  bootloaderEntryName: ORBIS Linux
+  productUrl: https://orbis-linux.cristopheriguaran-7.workers.dev
+  supportUrl: https://github.com/Reaccionador2Jeje/ORBIS-Linux/issues
+  knownIssuesUrl: https://github.com/Reaccionador2Jeje/ORBIS-Linux/issues
+images:
+  productLogo: ""
+  productIcon: ""
+style:
+  sidebar:
+    image: ""
