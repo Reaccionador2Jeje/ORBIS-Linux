@@ -101,7 +101,7 @@ jobs:
           fi
 
       - name: Build hybrid ISO
-        run: lb build
+        run: sudo lb build
 
       - name: Verify image
         run: |
