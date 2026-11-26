@@ -31,8 +31,8 @@ jobs:
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main" | \
             sudo tee /etc/apt/sources.list.d/orbis-live-build.list
           sudo apt-get update
-          apt-get download live-build=1:20250505+deb13u1 debootstrap=1.0.141
-          sudo dpkg -i ./debootstrap_1.0.141_all.deb ./live-build_20250505+deb13u1_all.deb
+          sudo apt-get install -y --no-install-recommends \
+            live-build=1:20250505+deb13u1 debootstrap=1.0.141
           sudo apt-get check
           lb --version
 
