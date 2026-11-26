@@ -7,6 +7,13 @@ live-config-systemd
 systemd-sysv
 xfce4
 xfce4-terminal
+# Explicit X11 stack because live-build disables APT recommends.
+xserver-xorg
+xserver-xorg-video-all
+xserver-xorg-input-all
+dbus-x11
+# Provide a PolicyKit authentication prompt in XFCE sessions.
+mate-polkit
 xfce4-whiskermenu-plugin
 thunar
 thunar-volman
