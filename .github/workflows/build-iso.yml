@@ -66,12 +66,16 @@ jobs:
           file live-image-amd64.hybrid.iso
           sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
       - name: Publish ISO release
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: orbis-iso-${{ github.run_number }}
-          name: ORBIS Linux ISO build ${{ github.run_number }}
+          tag_name: orbis-iso-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ORBIS Linux ISO build ${{ github.run_number }} (attempt ${{ github.run_attempt }})
           target_commitish: ${{ github.sha }}
           make_latest: true
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
           generate_release_notes: true
           files: |
             live-image-amd64.hybrid.iso
