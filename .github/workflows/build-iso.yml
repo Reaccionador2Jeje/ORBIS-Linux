@@ -20,15 +20,20 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    container:
+      image: debian:trixie
+      options: --user root
     timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install live-build
+      - name: Install Debian live-build toolchain
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends live-build debootstrap xorriso squashfs-tools
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            live-build debootstrap xorriso squashfs-tools python3 python3-venv \
+            python3-setuptools ruby ca-certificates curl wget file git
 
       - name: Validate ORBIS desktop, installer and build scripts
         run: |
@@ -47,9 +52,8 @@ jobs:
 
       - name: Stage ORBIS Core and installer launchers
         run: |
-          sudo mkdir -p config/includes.chroot/usr/share/orbis/source
-          sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
-          sudo chown -R "$USER":"$USER" config
+          mkdir -p config/includes.chroot/usr/share/orbis/source
+          cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
           chmod +x auto/config \
             config/hooks/live/*.hook.chroot \
             config/includes.chroot/usr/local/bin/orbis-earth \
@@ -58,36 +62,39 @@ jobs:
 
       - name: Configure Debian Trixie live system
         run: |
-          sudo rm -f config/binary config/bootstrap config/chroot config/common config/source
-          sudo lb config
+          rm -f config/binary config/bootstrap config/chroot config/common config/source
+          lb --version
+          lb config
           echo "=== generated live-build configuration ==="
           for file in config/bootstrap config/chroot config/binary config/common; do
             if [ -f "$file" ]; then
               echo "--- $file ---"
-              sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_DEBIAN_INSTALLER|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
+              grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_DEBIAN_INSTALLER|LB_SECURITY|LB_LINUX_PACKAGES|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
             fi
           done
           echo "=== legacy Ubuntu entries (diagnostic only) ==="
           for file in config/bootstrap config/chroot config/binary config/common; do
             if [ -f "$file" ]; then
-              sudo grep -Ein 'precise|archive[.]ubuntu[.]com' "$file" || true
+              grep -Ein 'precise|archive[.]ubuntu[.]com' "$file" || true
             fi
           done
-          sudo grep -Fqx 'LB_DISTRIBUTION="trixie"' config/bootstrap
-          sudo grep -Fqx 'LB_MODE="debian"' config/common
-          sudo grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
-          sudo grep -Fqx 'LB_SECURITY="false"' config/chroot
+          grep -Fqx 'LB_DISTRIBUTION="trixie"' config/bootstrap
+          grep -Fqx 'LB_MODE="debian"' config/common
+          grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
+          grep -Fqx 'LB_SECURITY="false"' config/chroot
+          grep -Fqx 'LB_LINUX_PACKAGES="none"' config/chroot
+          grep -Fqx 'linux-image-amd64' config/package-lists/orbis-desktop.list.chroot
           grep -Fqx 'deb https://security.debian.org/debian-security @DISTRIBUTION@-security @ARCHIVE_AREAS@' config/archives/debian-security.list.chroot
           for setting in LB_MIRROR_BOOTSTRAP LB_MIRROR_CHROOT LB_MIRROR_BINARY; do
-            sudo grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
+            grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
           done
-          if sudo grep -RIEq '^[[:space:]]*LB_(DISTRIBUTION|MODE|MIRROR_[A-Z_]+)=.*(precise|ubuntu)' config; then
+          if grep -RIEq '^[[:space:]]*LB_(DISTRIBUTION|MODE|MIRROR_[A-Z_]+)=.*(precise|ubuntu)' config; then
             echo "Unexpected active Ubuntu live-build setting found" >&2
             exit 1
           fi
 
       - name: Build hybrid ISO
-        run: sudo lb build
+        run: lb build
 
       - name: Verify image
         run: |
