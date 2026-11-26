@@ -84,6 +84,9 @@ jobs:
           grep -Fqx 'LB_SECURITY="false"' config/chroot
           grep -Fqx 'LB_LINUX_PACKAGES="none"' config/chroot
           grep -Fqx 'linux-image-amd64' config/package-lists/orbis-desktop.list.chroot
+          for package in xserver-xorg xserver-xorg-video-all xserver-xorg-input-all dbus-x11 mate-polkit; do
+            grep -Fqx "$package" config/package-lists/orbis-desktop.list.chroot
+          done
           grep -Fqx 'deb https://security.debian.org/debian-security @DISTRIBUTION@-security @ARCHIVE_AREAS@' config/archives/debian-security.list.chroot
           for setting in LB_MIRROR_BOOTSTRAP LB_MIRROR_CHROOT LB_MIRROR_BINARY; do
             grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
