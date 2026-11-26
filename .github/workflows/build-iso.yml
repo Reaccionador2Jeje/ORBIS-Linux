@@ -23,21 +23,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install live-build
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends live-build debootstrap xorriso squashfs-tools
-      - name: Validate desktop and build scripts
+
+      - name: Validate ORBIS desktop, installer and build scripts
         run: |
           python3 -m py_compile config/includes.chroot/usr/share/orbis/desktop/orbis_earth.py
           sh -n config/auto/config
           sh -n config/hooks/live/0200-install-orbis-core.hook.chroot
-      - name: Stage ORBIS Core for installation
+          sh -n config/includes.chroot/usr/local/bin/orbis-installer
+          ruby -e 'require "yaml"; ARGV.each { |f| YAML.load_file(f) }' \
+            config/includes.chroot/etc/calamares/settings.conf \
+            config/includes.chroot/etc/calamares/modules/unpackfs.conf \
+            config/includes.chroot/etc/calamares/modules/partition.conf \
+            config/includes.chroot/etc/calamares/modules/users.conf \
+            config/includes.chroot/etc/calamares/modules/displaymanager.conf \
+            config/includes.chroot/etc/calamares/branding/orbis/branding.desc
+
+      - name: Stage ORBIS Core and installer launchers
         run: |
           sudo mkdir -p config/includes.chroot/usr/share/orbis/source
           sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
           sudo chown -R "$USER":"$USER" config
-          chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth config/includes.chroot/etc/skel/Desktop/*.desktop
+          chmod +x config/auto/config \
+            config/hooks/live/*.hook.chroot \
+            config/includes.chroot/usr/local/bin/orbis-earth \
+            config/includes.chroot/usr/local/bin/orbis-installer \
+            config/includes.chroot/etc/skel/Desktop/*.desktop
+
       - name: Configure Debian Trixie live system
         run: |
           sudo rm -f config/binary config/bootstrap config/chroot config/common config/source
@@ -46,143 +62,31 @@ jobs:
           for file in config/bootstrap config/chroot config/binary config/common; do
             if [ -f "$file" ]; then
               echo "--- $file ---"
-              sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
+              sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_DEBIAN_INSTALLER|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
             fi
           done
-          echo "=== suspicious legacy Ubuntu entries (diagnostic only) ==="
+          echo "=== legacy Ubuntu entries (diagnostic only) ==="
           for file in config/bootstrap config/chroot config/binary config/common; do
             if [ -f "$file" ]; then
               sudo grep -Ein 'precise|archive[.]ubuntu[.]com' "$file" || true
             fi
           done
-          echo "=== enforce the active Debian build target ==="
-          sudo grep -Eq '^LB_DISTRIBUTION="trixie"
+          sudo grep -Eq '^LB_DISTRIBUTION="trixie"$' config/bootstrap
+          sudo grep -Eq '^LB_MODE="debian"$' config/bootstrap
+          sudo grep -Eq '^LB_DEBIAN_INSTALLER="none"$' config/binary
+          sudo grep -Eq '^LB_MIRROR_BOOTSTRAP="https://deb[.]debian[.]org/debian"$' config/bootstrap
+          sudo grep -Eq '^LB_MIRROR_CHROOT="https://deb[.]debian[.]org/debian"$' config/chroot
+          sudo grep -Eq '^LB_MIRROR_BINARY="https://deb[.]debian[.]org/debian"$' config/binary
+
       - name: Build hybrid ISO
         run: sudo lb build
+
       - name: Verify image
         run: |
           test -s live-image-amd64.hybrid.iso
           file live-image-amd64.hybrid.iso
           sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
-      - name: Publish ISO release
-        if: success()
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: orbis-iso-${{ github.run_id }}-${{ github.run_attempt }}
-          name: ORBIS Linux ISO build ${{ github.run_number }} (attempt ${{ github.run_attempt }})
-          target_commitish: ${{ github.sha }}
-          make_latest: true
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-          generate_release_notes: true
-          files: |
-            live-image-amd64.hybrid.iso
-            SHA256SUMS
- config/bootstrap
-          sudo grep -Eq '^LB_MODE="debian"
-      - name: Build hybrid ISO
-        run: sudo lb build
-      - name: Verify image
-        run: |
-          test -s live-image-amd64.hybrid.iso
-          file live-image-amd64.hybrid.iso
-          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
-      - name: Publish ISO release
-        if: success()
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: orbis-iso-${{ github.run_id }}-${{ github.run_attempt }}
-          name: ORBIS Linux ISO build ${{ github.run_number }} (attempt ${{ github.run_attempt }})
-          target_commitish: ${{ github.sha }}
-          make_latest: true
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-          generate_release_notes: true
-          files: |
-            live-image-amd64.hybrid.iso
-            SHA256SUMS
- config/bootstrap
-          sudo grep -Eq '^LB_MIRROR_BOOTSTRAP="https://deb[.]debian[.]org/debian"
-      - name: Build hybrid ISO
-        run: sudo lb build
-      - name: Verify image
-        run: |
-          test -s live-image-amd64.hybrid.iso
-          file live-image-amd64.hybrid.iso
-          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
-      - name: Publish ISO release
-        if: success()
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: orbis-iso-${{ github.run_id }}-${{ github.run_attempt }}
-          name: ORBIS Linux ISO build ${{ github.run_number }} (attempt ${{ github.run_attempt }})
-          target_commitish: ${{ github.sha }}
-          make_latest: true
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-          generate_release_notes: true
-          files: |
-            live-image-amd64.hybrid.iso
-            SHA256SUMS
- config/bootstrap
-          sudo grep -Eq '^LB_MIRROR_CHROOT="https://deb[.]debian[.]org/debian"
-      - name: Build hybrid ISO
-        run: sudo lb build
-      - name: Verify image
-        run: |
-          test -s live-image-amd64.hybrid.iso
-          file live-image-amd64.hybrid.iso
-          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
-      - name: Publish ISO release
-        if: success()
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: orbis-iso-${{ github.run_id }}-${{ github.run_attempt }}
-          name: ORBIS Linux ISO build ${{ github.run_number }} (attempt ${{ github.run_attempt }})
-          target_commitish: ${{ github.sha }}
-          make_latest: true
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-          generate_release_notes: true
-          files: |
-            live-image-amd64.hybrid.iso
-            SHA256SUMS
- config/chroot
-          sudo grep -Eq '^LB_MIRROR_BINARY="https://deb[.]debian[.]org/debian"
-      - name: Build hybrid ISO
-        run: sudo lb build
-      - name: Verify image
-        run: |
-          test -s live-image-amd64.hybrid.iso
-          file live-image-amd64.hybrid.iso
-          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
-      - name: Publish ISO release
-        if: success()
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: orbis-iso-${{ github.run_id }}-${{ github.run_attempt }}
-          name: ORBIS Linux ISO build ${{ github.run_number }} (attempt ${{ github.run_attempt }})
-          target_commitish: ${{ github.sha }}
-          make_latest: true
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-          generate_release_notes: true
-          files: |
-            live-image-amd64.hybrid.iso
-            SHA256SUMS
- config/binary
-      - name: Build hybrid ISO
-        run: sudo lb build
-      - name: Verify image
-        run: |
-          test -s live-image-amd64.hybrid.iso
-          file live-image-amd64.hybrid.iso
-          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
+
       - name: Publish ISO release
         if: success()
         uses: softprops/action-gh-release@v2
