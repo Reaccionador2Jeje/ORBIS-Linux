@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ORBIS Earth
+GenericName=Geospatial Explorer
+Comment=Explore offline GeoJSON datasets
+Exec=/usr/bin/orbis-earth
+Icon=applications-science
+Terminal=false
+Categories=Science;Education;Geography;
+StartupNotify=true
