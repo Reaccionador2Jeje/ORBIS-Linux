@@ -15,6 +15,7 @@ lb config noauto \
   --mirror-binary https://deb.debian.org/debian \
   --mirror-chroot-security https://security.debian.org/debian-security \
   --mirror-binary-security https://security.debian.org/debian-security \
+  --security false \
   --debian-installer none \
   --bootappend-live "boot=live components username=orbis hostname=orbis locales=en_US.UTF-8 keyboard-layouts=us" \
   --iso-application "ORBIS Linux" \
