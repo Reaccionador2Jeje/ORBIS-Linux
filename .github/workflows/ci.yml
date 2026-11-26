@@ -40,5 +40,5 @@ jobs:
           with Path("wrangler.toml").open("rb") as stream:
               tomllib.load(stream)
           readme = Path("README.md").read_text(encoding="utf-8")
-          assert "\\\\n" not in readme, "README contains literal escaped newlines"
+          assert chr(92) + "n" not in readme, "README contains literal escaped newlines"
           PY
