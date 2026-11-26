@@ -86,7 +86,7 @@ jobs:
           sudo grep -Fqx 'LB_MODE="debian"' config/common
           sudo grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
           sudo grep -Fqx 'LB_SECURITY="false"' config/chroot
-          sudo grep -Fqx 'LB_LINUX_PACKAGES="none"' config/chroot
+          sudo grep -Fqx 'LB_LINUX_PACKAGES="linux-image-amd64"' config/chroot
           sudo grep -Fqx 'linux-image-amd64' config/package-lists/orbis-desktop.list.chroot
           for package in grub-pc-bin grub-efi-amd64-bin; do
             sudo grep -Fqx "$package" config/package-lists/orbis-desktop.list.chroot
