@@ -17,6 +17,9 @@ firefox-esr
 # ORBIS graphical installer (Calamares)
 calamares
 pkexec
+grub-efi-amd64
+grub-pc
+os-prober
 fonts-dejavu
 fonts-noto-core
 papirus-icon-theme
