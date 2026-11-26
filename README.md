@@ -4,7 +4,11 @@
 
 ORBIS is both a **real Debian-based desktop distribution** and a geospatial software platform. The first desktop edition uses Debian 13 Trixie, XFCE, LightDM, and an offline ORBIS Earth viewer, and a customized Calamares installer.
 
-## Official website\n\nORBIS has an official website served by a Cloudflare Worker: [orbis-linux.cristopheriguaran-7.workers.dev](https://orbis-linux.cristopheriguaran-7.workers.dev). The Worker source is in `cloudflare/worker.js`; deploy it with Wrangler using `wrangler deploy`. The site includes product information, desktop details, project links, roadmap, health endpoint (`/api/status`), `robots.txt`, and sitemap. See [website documentation](docs/website.md).\n\n## The desktop edition
+## Official website
+
+ORBIS has an official website served by a Cloudflare Worker: [orbis-linux.cristopheriguaran-7.workers.dev](https://orbis-linux.cristopheriguaran-7.workers.dev). The Worker source is in `cloudflare/worker.js`; deploy it with Wrangler using `wrangler deploy`. The site includes product information, desktop details, project links, roadmap, health endpoint (`/api/status`), `robots.txt`, and sitemap. See [website documentation](docs/website.md).
+
+## The desktop edition
 
 - Debian 13 Trixie, amd64, live system; Debian Installer is disabled and Calamares is the official graphical installer.
 - XFCE desktop, LightDM login, NetworkManager, Firefox ESR.
