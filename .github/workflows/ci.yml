@@ -28,3 +28,17 @@ jobs:
           orbis --version
           orbis info
           orbis geojson examples/point-demo.geojson --pretty
+
+      - name: Validate website and project metadata
+        run: |
+          node --input-type=module --check < cloudflare/worker.js
+          python - <<'PY'
+          import json
+          import tomllib
+          from pathlib import Path
+          json.loads(Path("examples/point-demo.geojson").read_text(encoding="utf-8"))
+          with Path("wrangler.toml").open("rb") as stream:
+              tomllib.load(stream)
+          readme = Path("README.md").read_text(encoding="utf-8")
+          assert "\\\\n" not in readme, "README contains literal escaped newlines"
+          PY
