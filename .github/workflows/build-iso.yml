@@ -76,6 +76,8 @@ jobs:
           sudo grep -Fqx 'LB_DISTRIBUTION="trixie"' config/bootstrap
           sudo grep -Fqx 'LB_MODE="debian"' config/common
           sudo grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
+          sudo grep -Fqx 'LB_SECURITY="false"' config/chroot
+          grep -Fqx 'deb https://security.debian.org/debian-security @DISTRIBUTION@-security @ARCHIVE_AREAS@' config/archives/debian-security.list.chroot
           for setting in LB_MIRROR_BOOTSTRAP LB_MIRROR_CHROOT LB_MIRROR_BINARY; do
             sudo grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
           done
