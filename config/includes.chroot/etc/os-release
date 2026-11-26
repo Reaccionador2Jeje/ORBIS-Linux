@@ -1,0 +1,11 @@
+NAME="ORBIS Linux"
+PRETTY_NAME="ORBIS Linux 0.1.0"
+ID=orbis
+ID_LIKE=debian
+VERSION_ID="0.1.0"
+VERSION="0.1.0 (Trixie)"
+VERSION_CODENAME=orbis
+DEBIAN_CODENAME=trixie
+HOME_URL="https://github.com/Reaccionador2Jeje/ORBIS-Linux"
+SUPPORT_URL="https://github.com/Reaccionador2Jeje/ORBIS-Linux/issues"
+BUG_REPORT_URL="https://github.com/Reaccionador2Jeje/ORBIS-Linux/issues"
