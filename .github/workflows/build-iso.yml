@@ -40,6 +40,8 @@ jobs:
           chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth config/includes.chroot/etc/skel/Desktop/*.desktop
       - name: Configure Debian Trixie live system
         run: |
+          # Do not reuse stale live-build state from an earlier distro/configuration.
+          sudo rm -f config/binary config/bootstrap config/chroot config/common config/source
           sudo lb config
           echo "=== live-build bootstrap configuration ==="
           sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT)=' config/bootstrap || true
