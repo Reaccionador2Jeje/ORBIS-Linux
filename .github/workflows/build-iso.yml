@@ -73,7 +73,16 @@ jobs:
               sudo grep -Ein 'precise|archive[.]ubuntu[.]com' "$file" || true
             fi
           done
-          sudo grep -Eq '^LB_DISTRIBUTION="trixie"
+          sudo grep -Fqx 'LB_DISTRIBUTION="trixie"' config/bootstrap
+          sudo grep -Fqx 'LB_MODE="debian"' config/common
+          sudo grep -Fqx 'LB_DEBIAN_INSTALLER="none"' config/binary
+          for setting in LB_MIRROR_BOOTSTRAP LB_MIRROR_CHROOT LB_MIRROR_BINARY; do
+            sudo grep -RqsF "$setting=\"https://deb.debian.org/debian\"" config
+          done
+          if sudo grep -RIEq '^[[:space:]]*LB_(DISTRIBUTION|MODE|MIRROR_[A-Z_]+)=.*(precise|ubuntu)' config; then
+            echo "Unexpected active Ubuntu live-build setting found" >&2
+            exit 1
+          fi
 
       - name: Build hybrid ISO
         run: sudo lb build
