@@ -32,7 +32,7 @@ jobs:
       - name: Validate ORBIS desktop, installer and build scripts
         run: |
           python3 -m py_compile config/includes.chroot/usr/share/orbis/desktop/orbis_earth.py
-          sh -n config/auto/config
+          sh -n auto/config
           sh -n config/hooks/live/0200-install-orbis-core.hook.chroot
           sh -n config/hooks/live/0300-validate-orbis-installer.hook.chroot
           sh -n config/includes.chroot/usr/local/bin/orbis-installer
@@ -49,7 +49,7 @@ jobs:
           sudo mkdir -p config/includes.chroot/usr/share/orbis/source
           sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
           sudo chown -R "$USER":"$USER" config
-          chmod +x config/auto/config \
+          chmod +x auto/config \
             config/hooks/live/*.hook.chroot \
             config/includes.chroot/usr/local/bin/orbis-earth \
             config/includes.chroot/usr/local/bin/orbis-installer \
