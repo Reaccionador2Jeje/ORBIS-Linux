@@ -10,7 +10,7 @@ on:
       - ".github/workflows/build-iso.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: orbis-iso-${{ github.ref }}
@@ -40,7 +40,6 @@ jobs:
           chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth config/includes.chroot/etc/skel/Desktop/*.desktop
       - name: Configure Debian Trixie live system
         run: |
-          # Clear generated live-build state so no previous distro can leak into this build.
           sudo rm -f config/binary config/bootstrap config/chroot config/common config/source
           sudo lb config
           echo "=== generated live-build configuration ==="
@@ -50,13 +49,10 @@ jobs:
               sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
             fi
           done
-          # Validate only generated live-build configuration, never the whole source tree.
           for file in config/bootstrap config/chroot config/binary config/common; do
-            if [ -f "$file" ]; then
-              if sudo grep -Eiq 'precise|archive[.]ubuntu[.]com' "$file"; then
-                echo "::error::Ubuntu Precise configuration found in generated live-build state: $file"
-                exit 1
-              fi
+            if [ -f "$file" ] && sudo grep -Eiq 'precise|archive[.]ubuntu[.]com' "$file"; then
+              echo "::error::Ubuntu Precise configuration found in generated live-build state: $file"
+              exit 1
             fi
           done
           sudo grep -Eq '^LB_DISTRIBUTION="trixie"$' config/bootstrap
@@ -69,12 +65,14 @@ jobs:
           test -s live-image-amd64.hybrid.iso
           file live-image-amd64.hybrid.iso
           sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
-      - name: Upload ISO
-        uses: actions/upload-artifact@v4
+      - name: Publish ISO release
+        uses: softprops/action-gh-release@v2
         with:
-          name: orbis-linux-0.1.0-amd64-iso
-          path: |
+          tag_name: orbis-iso-${{ github.run_number }}
+          name: ORBIS Linux ISO build ${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          generate_release_notes: true
+          files: |
             live-image-amd64.hybrid.iso
             SHA256SUMS
-          if-no-files-found: error
-          retention-days: 14
