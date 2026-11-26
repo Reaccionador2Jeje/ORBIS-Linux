@@ -14,6 +14,9 @@ lightdm-gtk-greeter
 network-manager
 network-manager-gnome
 firefox-esr
+# ORBIS graphical installer (Calamares)
+calamares
+pkexec
 fonts-dejavu
 fonts-noto-core
 papirus-icon-theme
