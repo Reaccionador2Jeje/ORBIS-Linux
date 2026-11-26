@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "config/**"
+      - "auto/**"
       - "src/**"
       - "pyproject.toml"
       - ".github/workflows/build-iso.yml"
