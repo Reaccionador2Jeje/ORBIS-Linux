@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071827"/><stop offset=".55" stop-color="#0b3444"/><stop offset="1" stop-color="#101d39"/></linearGradient>
+  <radialGradient id="glow"><stop stop-color="#22c7bd" stop-opacity=".3"/><stop offset="1" stop-color="#22c7bd" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1920" height="1080" fill="url(#bg)"/>
+<circle cx="1450" cy="520" r="540" fill="url(#glow)"/>
+<g fill="none" stroke="#5de0d0" stroke-opacity=".25" stroke-width="2">
+ <circle cx="1450" cy="520" r="350"/><ellipse cx="1450" cy="520" rx="350" ry="125"/><ellipse cx="1450" cy="520" rx="180" ry="350"/>
+ <path d="M1100 520h700M1450 170v700M1190 275l520 490M1190 765l520-490"/>
+</g>
+<circle cx="1450" cy="520" r="345" fill="#0d5260" fill-opacity=".14" stroke="#5de0d0" stroke-opacity=".55" stroke-width="3"/>
+<g fill="#d8f5f2" font-family="sans-serif">
+ <text x="150" y="430" font-size="34" letter-spacing="12" opacity=".72">ATDEV PRESENTS</text>
+ <text x="140" y="565" font-size="150" font-weight="700" letter-spacing="8">ORBIS</text>
+ <text x="150" y="635" font-size="30" letter-spacing="5" opacity=".8">THE WORLD INTELLIGENCE OPERATING SYSTEM</text>
+ <text x="150" y="920" font-size="22" letter-spacing="4" opacity=".55">EXPLORE · UNDERSTAND · PROTECT</text>
+</g>
+</svg>
