@@ -26,13 +26,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cpio debootstrap xorriso squashfs-tools python3 python3-venv \
+            apt-utils cpio distro-info xorriso squashfs-tools python3 python3-venv \
             python3-setuptools ruby ca-certificates curl wget file git debian-archive-keyring
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main" | \
             sudo tee /etc/apt/sources.list.d/orbis-live-build.list
           sudo apt-get update
-          apt-get download live-build=1:20250505+deb13u1
-          sudo dpkg -i ./live-build_20250505+deb13u1_all.deb
+          apt-get download live-build=1:20250505+deb13u1 debootstrap=1.0.141
+          sudo dpkg -i ./debootstrap_1.0.141_all.deb ./live-build_20250505+deb13u1_all.deb
           sudo apt-get check
           lb --version
 
