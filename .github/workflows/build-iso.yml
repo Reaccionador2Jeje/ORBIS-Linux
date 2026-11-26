@@ -38,9 +38,19 @@ jobs:
           sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
           sudo chown -R "$USER":"$USER" config
           chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth config/includes.chroot/etc/skel/Desktop/*.desktop
-      - name: Build hybrid ISO
+      - name: Configure Debian Trixie live system
         run: |
           sudo lb config
+          echo "=== live-build bootstrap configuration ==="
+          sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT)=' config/bootstrap || true
+          if sudo grep -RniE 'precise|archive\\.ubuntu\\.com' config; then
+            echo "::error::Unexpected Ubuntu Precise configuration detected; ORBIS must bootstrap Debian Trixie."
+            exit 1
+          fi
+          sudo grep -q 'LB_DISTRIBUTION="trixie"' config/bootstrap
+          sudo grep -q 'LB_MODE="debian"' config/bootstrap
+      - name: Build hybrid ISO
+        run: |
           sudo lb build
       - name: Verify image
         run: |
