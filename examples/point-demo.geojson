@@ -1,0 +1,18 @@
+{
+  "type": "FeatureCollection",
+  "name": "ORBIS offline demonstration",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Demonstration point",
+        "description": "Synthetic example coordinate; not a real-world observation.",
+        "source": "ORBIS project example"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [0.0, 0.0]
+      }
+    }
+  ]
+}
