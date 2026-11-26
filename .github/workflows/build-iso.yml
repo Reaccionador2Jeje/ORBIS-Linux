@@ -1,0 +1,53 @@
+name: Build ORBIS Linux ISO
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "config/**"
+      - "src/**"
+      - "pyproject.toml"
+      - ".github/workflows/build-iso.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orbis-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install live-build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends live-build debootstrap xorriso squashfs-tools
+      - name: Stage ORBIS Core for installation
+        run: |
+          sudo mkdir -p config/includes.chroot/usr/share/orbis/source
+          sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
+          sudo chown -R "$USER":"$USER" config
+          chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth
+      - name: Build hybrid ISO
+        run: |
+          sudo lb config
+          sudo lb build
+      - name: Verify image
+        run: |
+          test -s live-image-amd64.hybrid.iso
+          file live-image-amd64.hybrid.iso
+          sha256sum live-image-amd64.hybrid.iso | tee SHA256SUMS
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: orbis-linux-0.1.0-amd64-iso
+          path: |
+            live-image-amd64.hybrid.iso
+            SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14
