@@ -1,5 +1,5 @@
 #!/bin/sh
 set -eu
-python3 -m venv /opt/orbis/venv
-/opt/orbis/venv/bin/pip install --no-deps /usr/share/orbis/source
+python3 -m venv --system-site-packages /opt/orbis/venv
+/opt/orbis/venv/bin/pip install --no-deps --no-build-isolation /usr/share/orbis/source
 ln -sf /opt/orbis/venv/bin/orbis /usr/local/bin/orbis
