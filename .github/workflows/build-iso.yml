@@ -32,7 +32,7 @@ jobs:
           sudo mkdir -p config/includes.chroot/usr/share/orbis/source
           sudo cp -a src pyproject.toml README.md LICENSE config/includes.chroot/usr/share/orbis/source/
           sudo chown -R "$USER":"$USER" config
-          chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth
+          chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth config/includes.chroot/etc/skel/Desktop/*.desktop
       - name: Build hybrid ISO
         run: |
           sudo lb config
