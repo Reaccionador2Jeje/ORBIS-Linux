@@ -40,20 +40,30 @@ jobs:
           chmod +x config/auto/config config/hooks/live/*.hook.chroot config/includes.chroot/usr/local/bin/orbis-earth config/includes.chroot/etc/skel/Desktop/*.desktop
       - name: Configure Debian Trixie live system
         run: |
-          # Do not reuse stale live-build state from an earlier distro/configuration.
+          # Clear generated live-build state so no previous distro can leak into this build.
           sudo rm -f config/binary config/bootstrap config/chroot config/common config/source
           sudo lb config
-          echo "=== live-build bootstrap configuration ==="
-          sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT)=' config/bootstrap || true
-          if sudo grep -RniE 'precise|archive\\.ubuntu\\.com' config; then
-            echo "::error::Unexpected Ubuntu Precise configuration detected; ORBIS must bootstrap Debian Trixie."
-            exit 1
-          fi
-          sudo grep -q 'LB_DISTRIBUTION="trixie"' config/bootstrap
-          sudo grep -q 'LB_MODE="debian"' config/bootstrap
+          echo "=== generated live-build configuration ==="
+          for file in config/bootstrap config/chroot config/binary config/common; do
+            if [ -f "$file" ]; then
+              echo "--- $file ---"
+              sudo grep -E '^(LB_MODE|LB_DISTRIBUTION|LB_MIRROR_BOOTSTRAP|LB_MIRROR_CHROOT|LB_MIRROR_BINARY)=' "$file" || true
+            fi
+          done
+          # Validate only generated live-build configuration, never the whole source tree.
+          for file in config/bootstrap config/chroot config/binary config/common; do
+            if [ -f "$file" ]; then
+              if sudo grep -Eiq 'precise|archive[.]ubuntu[.]com' "$file"; then
+                echo "::error::Ubuntu Precise configuration found in generated live-build state: $file"
+                exit 1
+              fi
+            fi
+          done
+          sudo grep -Eq '^LB_DISTRIBUTION="trixie"$' config/bootstrap
+          sudo grep -Eq '^LB_MODE="debian"$' config/bootstrap
+          sudo grep -Eq '^LB_MIRROR_BOOTSTRAP="https://deb[.]debian[.]org/debian"$' config/bootstrap
       - name: Build hybrid ISO
-        run: |
-          sudo lb build
+        run: sudo lb build
       - name: Verify image
         run: |
           test -s live-image-amd64.hybrid.iso
